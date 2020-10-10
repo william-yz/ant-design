@@ -17,49 +17,54 @@ Load options lazily with `loadData`.
 
 > Note: `loadData` cannot work with `showSearch`.
 
-````jsx
+```jsx
 import { Cascader } from 'antd';
 
-const options = [{
-  value: 'zhejiang',
-  label: 'Zhejiang',
-  isLeaf: false,
-}, {
-  value: 'jiangsu',
-  label: 'Jiangsu',
-  isLeaf: false,
-}];
+const options = [
+  {
+    value: 'zhejiang',
+    label: 'Zhejiang',
+    isLeaf: false,
+  },
+  {
+    value: 'jiangsu',
+    label: 'Jiangsu',
+    isLeaf: false,
+  },
+];
 
 class LazyOptions extends React.Component {
   state = {
-    inputValue: '',
     options,
   };
+
   onChange = (value, selectedOptions) => {
     console.log(value, selectedOptions);
-    this.setState({
-      inputValue: selectedOptions.map(o => o.label).join(', '),
-    });
-  }
-  loadData = (selectedOptions) => {
+  };
+
+  loadData = selectedOptions => {
     const targetOption = selectedOptions[selectedOptions.length - 1];
     targetOption.loading = true;
 
     // load options lazily
     setTimeout(() => {
       targetOption.loading = false;
-      targetOption.children = [{
-        label: `${targetOption.label} Dynamic 1`,
-        value: 'dynamic1',
-      }, {
-        label: `${targetOption.label} Dynamic 2`,
-        value: 'dynamic2',
-      }];
+      targetOption.children = [
+        {
+          label: `${targetOption.label} Dynamic 1`,
+          value: 'dynamic1',
+        },
+        {
+          label: `${targetOption.label} Dynamic 2`,
+          value: 'dynamic2',
+        },
+      ];
       this.setState({
         options: [...this.state.options],
       });
     }, 1000);
-  }
+  };
+
   render() {
     return (
       <Cascader
@@ -73,4 +78,4 @@ class LazyOptions extends React.Component {
 }
 
 ReactDOM.render(<LazyOptions />, mountNode);
-````
+```

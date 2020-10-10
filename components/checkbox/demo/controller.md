@@ -1,8 +1,8 @@
 ---
 order: 2
 title:
-    zh-CN: 受控的 Checkbox
-    en-US: Controlled Checkbox
+  zh-CN: 受控的 Checkbox
+  en-US: Controlled Checkbox
 ---
 
 ## zh-CN
@@ -13,7 +13,7 @@ title:
 
 Communicated with other components.
 
-````jsx
+```jsx
 import { Checkbox, Button } from 'antd';
 
 class App extends React.Component {
@@ -21,10 +21,28 @@ class App extends React.Component {
     checked: true,
     disabled: false,
   };
+
+  toggleChecked = () => {
+    this.setState({ checked: !this.state.checked });
+  };
+
+  toggleDisable = () => {
+    this.setState({ disabled: !this.state.disabled });
+  };
+
+  onChange = e => {
+    console.log('checked = ', e.target.checked);
+    this.setState({
+      checked: e.target.checked,
+    });
+  };
+
   render() {
-    const label = `${this.state.checked ? 'Checked' : 'Unchecked'}-${this.state.disabled ? 'Disabled' : 'Enabled'}`;
+    const label = `${this.state.checked ? 'Checked' : 'Unchecked'}-${
+      this.state.disabled ? 'Disabled' : 'Enabled'
+    }`;
     return (
-      <div>
+      <>
         <p style={{ marginBottom: '20px' }}>
           <Checkbox
             checked={this.state.checked}
@@ -35,15 +53,11 @@ class App extends React.Component {
           </Checkbox>
         </p>
         <p>
-          <Button
-            type="primary"
-            size="small"
-            onClick={this.toggleChecked}
-          >
+          <Button type="primary" size="small" onClick={this.toggleChecked}>
             {!this.state.checked ? 'Check' : 'Uncheck'}
           </Button>
           <Button
-            style={{ marginLeft: '10px' }}
+            style={{ margin: '0 10px' }}
             type="primary"
             size="small"
             onClick={this.toggleDisable}
@@ -51,22 +65,10 @@ class App extends React.Component {
             {!this.state.disabled ? 'Disable' : 'Enable'}
           </Button>
         </p>
-      </div>
+      </>
     );
-  }
-  toggleChecked = () => {
-    this.setState({ checked: !this.state.checked });
-  }
-  toggleDisable = () => {
-    this.setState({ disabled: !this.state.disabled });
-  }
-  onChange = (e) => {
-    console.log('checked = ', e.target.checked);
-    this.setState({
-      checked: e.target.checked,
-    });
   }
 }
 
 ReactDOM.render(<App />, mountNode);
-````
+```

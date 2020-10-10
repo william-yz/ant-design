@@ -1,95 +1,99 @@
 import React from 'react';
-import { mount, render } from 'enzyme';
+import { mount } from 'enzyme';
 import moment from 'moment';
-import { RangePicker } from '../';
+import DatePicker from '..';
+import { setMockDate, resetMockDate } from '../../../tests/utils';
+import { openPicker, selectCell, closePicker } from './utils';
+import focusTest from '../../../tests/shared/focusTest';
+
+const { RangePicker } = DatePicker;
 
 describe('RangePicker', () => {
-  it('show month panel according to value', () => {
-    const birthday = moment('2000-01-01', 'YYYY-MM-DD').locale('zh-cn');
-    const wrapper = mount(
-      <RangePicker
-        getCalendarContainer={trigger => trigger}
-        format="YYYY/MM/DD"
-        showTime
-        open
-      />
-    );
+  focusTest(RangePicker, { refFocus: true });
 
-    wrapper.setProps({ value: [birthday, birthday] });
-    expect(render(wrapper.find('Trigger').node.getComponent()))
-      .toMatchSnapshot();
+  beforeEach(() => {
+    setMockDate();
   });
 
-  it('switch to corresponding month panel when click presetted ranges', () => {
-    const birthday = moment('2000-01-01', 'YYYY-MM-DD').locale('zh-cn');
-    const wrapper = mount(
-      <RangePicker
-        ranges={{
-          'My Birthday': [birthday, birthday],
-        }}
-        getCalendarContainer={trigger => trigger}
-        format="YYYY/MM/DD"
-        showTime
-        open
-      />
-    );
-
-    const rangeCalendarWrapper = mount(wrapper.find('Trigger').node.getComponent());
-    rangeCalendarWrapper.find('.ant-calendar-range-quick-selector a')
-      .simulate('click');
-    expect(render(wrapper.find('Trigger').node.getComponent()))
-      .toMatchSnapshot();
-  });
-
-  it('highlight range when hover presetted range', () => {
-    const wrapper = mount(
-      <RangePicker
-        ranges={{
-          'This Month': [moment().startOf('month'), moment().endOf('month')],
-        }}
-        getCalendarContainer={trigger => trigger}
-        format="YYYY/MM/DD"
-        open
-      />
-    );
-
-    let rangeCalendarWrapper = mount(wrapper.find('Trigger').node.getComponent());
-    rangeCalendarWrapper.find('.ant-calendar-range-quick-selector a')
-      .simulate('mouseEnter');
-    rangeCalendarWrapper = mount(wrapper.find('Trigger').node.getComponent());
-    expect(rangeCalendarWrapper.find('.ant-calendar-selected-day').length).toBe(2);
+  afterEach(() => {
+    resetMockDate();
   });
 
   // issue: https://github.com/ant-design/ant-design/issues/5872
   it('should not throw error when value is reset to `[]`', () => {
     const birthday = moment('2000-01-01', 'YYYY-MM-DD');
-    const wrapper = mount(
-      <RangePicker
-        getCalendarContainer={trigger => trigger}
-        value={[birthday, birthday]}
-        open
-      />
-    );
+    const wrapper = mount(<RangePicker value={[birthday, birthday]} open />);
     wrapper.setProps({ value: [] });
-    const rangeCalendarWrapper = mount(wrapper.find('Trigger').node.getComponent());
-    expect(() => rangeCalendarWrapper.find('.ant-calendar-cell').at(15).simulate('click').simulate('click'))
-      .not.toThrow();
+
+    expect(() => {
+      openPicker(wrapper);
+      selectCell(wrapper, 3);
+      closePicker(wrapper);
+
+      openPicker(wrapper, 1);
+      selectCell(wrapper, 5, 1);
+      closePicker(wrapper, 1);
+    }).not.toThrow();
   });
 
-  // issue: https://github.com/ant-design/ant-design/issues/7077
-  it('should not throw error when select after clear', () => {
-    const wrapper = mount(
-      <RangePicker
-        getCalendarContainer={trigger => trigger}
-        open
-      />
-    );
-    let rangeCalendarWrapper = mount(wrapper.find('Trigger').node.getComponent());
-    rangeCalendarWrapper.find('.ant-calendar-cell').at(15).simulate('click').simulate('click');
-    wrapper.find('.ant-calendar-picker-clear').simulate('click');
-    wrapper.find('.ant-calendar-picker-input').simulate('click');
-    rangeCalendarWrapper = mount(wrapper.find('Trigger').node.getComponent());
-    expect(() => rangeCalendarWrapper.find('.ant-calendar-cell').at(15).simulate('click').simulate('click'))
-      .not.toThrow();
+  it('customize separator', () => {
+    const wrapper = mount(<RangePicker separator="test" />);
+    expect(wrapper.render()).toMatchSnapshot();
+  });
+
+  // https://github.com/ant-design/ant-design/issues/13302
+  describe('in "month" mode, when the left and right panels select the same month', () => {
+    it('the cell status is correct', () => {
+      class Test extends React.Component {
+        state = {
+          value: null,
+        };
+
+        onPanelChange = value => {
+          this.setState({ value });
+        };
+
+        render() {
+          return (
+            <RangePicker
+              value={this.state.value}
+              mode={['month', 'month']}
+              onPanelChange={this.onPanelChange}
+            />
+          );
+        }
+      }
+      const wrapper = mount(<Test />);
+      openPicker(wrapper);
+      selectCell(wrapper, 'Feb');
+      openPicker(wrapper, 1);
+      selectCell(wrapper, 'Feb');
+      closePicker(wrapper, 1);
+
+      const { value } = wrapper.state();
+
+      expect(value[0].isSame(value[1], 'date')).toBeTruthy();
+    });
+  });
+
+  describe('ranges', () => {
+    it('RangePicker support presetted ranges with Tags', () => {
+      const wrapper = mount(
+        <RangePicker
+          ranges={{
+            Today: [moment(), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+          }}
+          open
+        />,
+      );
+      expect(wrapper).toMatchRenderedSnapshot();
+    });
+  });
+
+  it('placeholder', () => {
+    const wrapper = mount(<RangePicker placeholder={undefined} />);
+    expect(wrapper.find('input').first().props().placeholder).toEqual('Start date');
+    expect(wrapper.find('input').last().props().placeholder).toEqual('End date');
   });
 });

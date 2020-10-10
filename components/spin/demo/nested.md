@@ -11,16 +11,18 @@ title:
 
 ## en-US
 
-Embedding content into `Spin` will alter it into loading state.
+Embedding content into `Spin` will set it into loading state.
 
-````jsx
+```jsx
 import { Spin, Switch, Alert } from 'antd';
 
 class Card extends React.Component {
-  state = { loading: false }
-  toggle = (value) => {
+  state = { loading: false };
+
+  toggle = value => {
     this.setState({ loading: value });
-  }
+  };
+
   render() {
     return (
       <div>
@@ -32,7 +34,8 @@ class Card extends React.Component {
           />
         </Spin>
         <div style={{ marginTop: 16 }}>
-          Loading state：<Switch checked={this.state.loading} onChange={this.toggle} />
+          Loading state：
+          <Switch checked={this.state.loading} onChange={this.toggle} />
         </div>
       </div>
     );
@@ -40,4 +43,4 @@ class Card extends React.Component {
 }
 
 ReactDOM.render(<Card />, mountNode);
-````
+```

@@ -1,22 +1,17 @@
-@import "../../style/themes/default";
-@import "../../style/mixins/index";
+@import '../../style/themes/index';
+@import '../../style/mixins/index';
 
-@slider-prefix-cls: ~"@{ant-prefix}-slider";
-// slider color
-@slider-disabled-color: @disabled-color;
-// tooltip
-@slider-tooltip-color: #fff;
-@slider-tooltip-bg: tint(@text-color, 4%);
-@slider-tooltip-arrow-width: 4px;
-@slider-tooltip-distance: @slider-tooltip-arrow-width + 4px;
-@slider-tooltip-arrow-color: @slider-tooltip-bg;
+@slider-prefix-cls: ~'@{ant-prefix}-slider';
 
 .@{slider-prefix-cls} {
+  .reset-component;
+
   position: relative;
-  margin: 10px 6px;
-  padding: 4px 0;
   height: 12px;
+  margin: @slider-margin;
+  padding: 4px 0;
   cursor: pointer;
+  touch-action: none;
 
   .vertical();
 
@@ -28,51 +23,57 @@
     position: absolute;
     width: 100%;
     height: 4px;
-    border-radius: 2px;
-    background-color: @border-color-split;
-    transition: background-color 0.3s ease;
+    background-color: @slider-rail-background-color;
+    border-radius: @border-radius-base;
+    transition: background-color 0.3s;
   }
 
   &-track {
     position: absolute;
     height: 4px;
+    background-color: @slider-track-background-color;
     border-radius: @border-radius-base;
-    background-color: tint(@primary-color, 60%);
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
   }
 
   &-handle {
     position: absolute;
-    margin-left: -7px;
-    margin-top: -5px;
-    width: 14px;
-    height: 14px;
-    cursor: pointer;
+    width: @slider-handle-size;
+    height: @slider-handle-size;
+    margin-top: @slider-handle-margin-top;
+    background-color: @slider-handle-background-color;
+    border: solid @slider-handle-border-width @slider-handle-color;
     border-radius: 50%;
-    border: solid 2px tint(@primary-color, 50%);
-    background-color: @component-background;
-    transition: border-color 0.3s ease, transform .3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    box-shadow: @slider-handle-shadow;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.6s,
+      transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 
-    &:hover {
-      border-color: @primary-5;
-      transform: scale(1.2);
-      transform-origin: center center;
+    &-dragging&-dragging&-dragging {
+      border-color: @slider-handle-color-focus;
+      box-shadow: 0 0 0 5px @slider-handle-color-focus-shadow;
     }
 
-    &:active {
-      box-shadow: 0 0 0 2px fadeout(@primary-color, 80%);
+    &:focus {
+      border-color: @slider-handle-color-focus;
+      outline: none;
+      box-shadow: 0 0 0 5px @slider-handle-color-focus-shadow;
+    }
+
+    &.@{ant-prefix}-tooltip-open {
+      border-color: @slider-handle-color-tooltip-open;
     }
   }
 
   &:hover {
     .@{slider-prefix-cls}-rail {
-      background-color: #e1e1e1;
+      background-color: @slider-rail-background-color-hover;
     }
     .@{slider-prefix-cls}-track {
-      background-color: tint(@primary-color, 40%);
+      background-color: @slider-track-background-color-hover;
     }
-    .@{slider-prefix-cls}-handle {
-      border-color: @primary-5;
+    .@{slider-prefix-cls}-handle:not(.@{ant-prefix}-tooltip-open) {
+      border-color: @slider-handle-color-hover;
     }
   }
 
@@ -87,10 +88,11 @@
   &-mark-text {
     position: absolute;
     display: inline-block;
-    vertical-align: middle;
-    text-align: center;
-    cursor: pointer;
     color: @text-color-secondary;
+    text-align: center;
+    word-break: keep-all;
+    cursor: pointer;
+    user-select: none;
 
     &-active {
       color: @text-color;
@@ -107,14 +109,14 @@
   &-dot {
     position: absolute;
     top: -2px;
-    margin-left: -4px;
     width: 8px;
     height: 8px;
-    border: 2px solid @border-color-split;
+    margin-left: -4px;
     background-color: @component-background;
-    cursor: pointer;
+    border: 2px solid @slider-dot-border-color;
     border-radius: 50%;
-    vertical-align: middle;
+    cursor: pointer;
+
     &:first-child {
       margin-left: -4px;
     }
@@ -122,7 +124,7 @@
       margin-left: -4px;
     }
     &-active {
-      border-color: tint(@primary-color, 50%);
+      border-color: @slider-dot-border-color-active;
     }
   }
 
@@ -135,10 +137,10 @@
 
     .@{slider-prefix-cls}-handle,
     .@{slider-prefix-cls}-dot {
-      border-color: @slider-disabled-color !important;
       background-color: @component-background;
-      cursor: not-allowed;
+      border-color: @slider-disabled-color !important;
       box-shadow: none;
+      cursor: not-allowed;
     }
 
     .@{slider-prefix-cls}-mark-text,
@@ -156,8 +158,8 @@
     padding: 0 4px;
 
     .@{slider-prefix-cls}-rail {
-      height: 100%;
       width: 4px;
+      height: 100%;
     }
 
     .@{slider-prefix-cls}-track {
@@ -165,8 +167,8 @@
     }
 
     .@{slider-prefix-cls}-handle {
+      margin-top: -6px; // we chould consider border width as well: (10 + 2 ) / 2
       margin-left: -5px;
-      margin-bottom: -7px;
     }
 
     .@{slider-prefix-cls}-mark {
@@ -192,4 +194,13 @@
       margin-bottom: -4px;
     }
   }
+
+  &-tooltip {
+    // https://github.com/ant-design/ant-design/issues/20014
+    .@{ant-prefix}-tooltip-inner {
+      min-width: unset;
+    }
+  }
 }
+
+@import './rtl';

@@ -1,5 +1,5 @@
 ---
-order: 1
+order: 2
 title:
   zh-CN: 日期格式
   en-US: Date Format
@@ -13,23 +13,27 @@ title:
 
 We can set the date format by `format`.
 
-````jsx
-import { DatePicker } from 'antd';
+```jsx
+import { DatePicker, Space } from 'antd';
 import moment from 'moment';
-const { MonthPicker, RangePicker } = DatePicker;
+
+const { RangePicker } = DatePicker;
 
 const dateFormat = 'YYYY/MM/DD';
 const monthFormat = 'YYYY/MM';
+
+const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY'];
+
 ReactDOM.render(
-  <div>
+  <Space direction="vertical" size={12}>
     <DatePicker defaultValue={moment('2015/01/01', dateFormat)} format={dateFormat} />
-    <br />
-    <MonthPicker defaultValue={moment('2015/01', monthFormat)} format={monthFormat} />
-    <br />
+    <DatePicker defaultValue={moment('01/01/2015', dateFormatList[0])} format={dateFormatList} />
+    <DatePicker defaultValue={moment('2015/01', monthFormat)} format={monthFormat} picker="month" />
     <RangePicker
       defaultValue={[moment('2015/01/01', dateFormat), moment('2015/01/01', dateFormat)]}
       format={dateFormat}
     />
-  </div>
-, mountNode);
-````
+  </Space>,
+  mountNode,
+);
+```

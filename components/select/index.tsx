@@ -1,163 +1,182 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import RcSelect, { Option, OptGroup } from 'rc-select';
-import classNames from 'classnames';
-import warning from '../_util/warning';
+// TODO: 4.0 - codemod should help to change `filterOption` to support node props.
 
-export interface AbstractSelectProps {
-  prefixCls?: string;
-  className?: string;
-  size?: 'default' | 'large' | 'small';
-  notFoundContent?: React.ReactNode | null;
-  transitionName?: string;
-  choiceTransitionName?: string;
-  showSearch?: boolean;
-  allowClear?: boolean;
-  disabled?: boolean;
-  style?: React.CSSProperties;
-  placeholder?: string;
-  dropdownClassName?: string;
-  dropdownStyle?: React.CSSProperties;
-  dropdownMenuStyle?: React.CSSProperties;
-  onSearch?: (value: string) => any;
-  filterOption?: boolean | ((inputValue: string, option: Object) => any);
-}
+import * as React from 'react';
+import omit from 'omit.js';
+import classNames from 'classnames';
+import RcSelect, { Option, OptGroup, SelectProps as RcSelectProps } from 'rc-select';
+import { OptionProps } from 'rc-select/lib/Option';
+import { ConfigConsumer, ConfigConsumerProps } from '../config-provider';
+import getIcons from './utils/iconUtil';
+import SizeContext, { SizeType } from '../config-provider/SizeContext';
+
+type RawValue = string | number;
+
+export { OptionProps };
+
+export type OptionType = typeof Option;
 
 export interface LabeledValue {
-  key: string;
+  key?: string;
+  value: RawValue;
   label: React.ReactNode;
 }
 
-export type SelectValue = string | any[] | LabeledValue | LabeledValue[];
+export type SelectValue = RawValue | RawValue[] | LabeledValue | LabeledValue[];
 
-export interface SelectProps extends AbstractSelectProps {
-  value?: SelectValue;
-  defaultValue?: SelectValue;
-  mode?: 'default' | 'multiple' | 'tags' | 'combobox';
-  multiple?: boolean;
-  tags?: boolean;
-  combobox?: boolean;
-  optionLabelProp?: string;
-  onChange?: (value: SelectValue) => void;
-  onSelect?: (value: SelectValue, option: Object) => any;
-  onDeselect?: (value: SelectValue) => any;
-  onBlur?: () => any;
-  onFocus?: () => any;
-  dropdownMatchSelectWidth?: boolean;
-  optionFilterProp?: string;
-  defaultActiveFirstOption?: boolean;
-  labelInValue?: boolean;
-  getPopupContainer?: (triggerNode: Element) => HTMLElement;
-  tokenSeparators?: string[];
-  getInputElement?: () => React.ReactElement<any>;
+export interface InternalSelectProps<VT> extends Omit<RcSelectProps<VT>, 'mode'> {
+  suffixIcon?: React.ReactNode;
+  size?: SizeType;
+  mode?: 'multiple' | 'tags' | 'SECRET_COMBOBOX_MODE_DO_NOT_USE';
+  bordered?: boolean;
 }
 
-export interface OptionProps {
-  disabled?: boolean;
-  value?: any;
-  title?: string;
+export interface SelectProps<VT>
+  extends Omit<InternalSelectProps<VT>, 'inputIcon' | 'mode' | 'getInputElement' | 'backfill'> {
+  mode?: 'multiple' | 'tags';
 }
 
-export interface OptGroupProps {
-  label?: string | React.ReactElement<any>;
-}
+// We still use class here since `forwardRef` not support generic in typescript
+class Select<ValueType extends SelectValue = SelectValue> extends React.Component<
+  SelectProps<ValueType>
+> {
+  static Option = Option;
 
-export interface SelectContext {
-  antLocale?: {
-    Select?: any,
-  };
-}
+  static OptGroup = OptGroup;
 
-const SelectPropTypes = {
-  prefixCls: PropTypes.string,
-  className: PropTypes.string,
-  size: PropTypes.oneOf(['default', 'large', 'small']),
-  combobox: PropTypes.bool,
-  notFoundContent: PropTypes.any,
-  showSearch: PropTypes.bool,
-  optionLabelProp: PropTypes.string,
-  transitionName: PropTypes.string,
-  choiceTransitionName: PropTypes.string,
-};
-
-// => It is needless to export the declaration of below two inner components.
-// export { Option, OptGroup };
-
-export default class Select extends React.Component<SelectProps, any> {
-  static Option = Option as React.ClassicComponentClass<OptionProps>;
-  static OptGroup = OptGroup as React.ClassicComponentClass<OptGroupProps>;
+  static SECRET_COMBOBOX_MODE_DO_NOT_USE = 'SECRET_COMBOBOX_MODE_DO_NOT_USE';
 
   static defaultProps = {
-    prefixCls: 'ant-select',
-    showSearch: false,
     transitionName: 'slide-up',
-    choiceTransitionName: 'zoom',
+    choiceTransitionName: '',
+    bordered: true,
   };
 
-  static propTypes = SelectPropTypes;
+  selectRef = React.createRef<RcSelect<ValueType>>();
 
-  static contextTypes = {
-    antLocale: PropTypes.object,
-  };
-
-  context: SelectContext;
-
-  getLocale() {
-    const { antLocale } = this.context;
-    if (antLocale && antLocale.Select) {
-      return antLocale.Select;
+  public focus = () => {
+    if (this.selectRef.current) {
+      this.selectRef.current.focus();
     }
-    return {
-      notFoundContent: '无匹配结果',
-    };
-  }
+  };
+
+  public blur = () => {
+    if (this.selectRef.current) {
+      this.selectRef.current.blur();
+    }
+  };
+
+  getMode = () => {
+    const { mode } = this.props as InternalSelectProps<ValueType>;
+
+    if ((mode as any) === 'combobox') {
+      return undefined;
+    }
+
+    if (mode === Select.SECRET_COMBOBOX_MODE_DO_NOT_USE) {
+      return 'combobox';
+    }
+
+    return mode;
+  };
+
+  renderSelect = ({
+    getPopupContainer: getContextPopupContainer,
+    getPrefixCls,
+    renderEmpty,
+    direction,
+    virtual,
+    dropdownMatchSelectWidth,
+  }: ConfigConsumerProps) => {
+    const {
+      prefixCls: customizePrefixCls,
+      notFoundContent,
+      className,
+      size: customizeSize,
+      listHeight = 256,
+      listItemHeight = 24,
+      getPopupContainer,
+      dropdownClassName,
+      bordered,
+    } = this.props as InternalSelectProps<ValueType>;
+
+    const prefixCls = getPrefixCls('select', customizePrefixCls);
+    const mode = this.getMode();
+
+    const isMultiple = mode === 'multiple' || mode === 'tags';
+
+    // ===================== Empty =====================
+    let mergedNotFound: React.ReactNode;
+    if (notFoundContent !== undefined) {
+      mergedNotFound = notFoundContent;
+    } else if (mode === 'combobox') {
+      mergedNotFound = null;
+    } else {
+      mergedNotFound = renderEmpty('Select');
+    }
+
+    // ===================== Icons =====================
+    const { suffixIcon, itemIcon, removeIcon, clearIcon } = getIcons({
+      ...this.props,
+      multiple: isMultiple,
+      prefixCls,
+    });
+
+    const selectProps = omit(this.props, [
+      'prefixCls',
+      'suffixIcon',
+      'itemIcon',
+      'removeIcon',
+      'clearIcon',
+      'size',
+      'bordered',
+    ]);
+
+    const rcSelectRtlDropDownClassName = classNames(dropdownClassName, {
+      [`${prefixCls}-dropdown-${direction}`]: direction === 'rtl',
+    });
+    return (
+      <SizeContext.Consumer>
+        {size => {
+          const mergedSize = customizeSize || size;
+          const mergedClassName = classNames(
+            {
+              [`${prefixCls}-lg`]: mergedSize === 'large',
+              [`${prefixCls}-sm`]: mergedSize === 'small',
+              [`${prefixCls}-rtl`]: direction === 'rtl',
+              [`${prefixCls}-borderless`]: !bordered,
+            },
+            className,
+          );
+
+          return (
+            <RcSelect<ValueType>
+              ref={this.selectRef}
+              virtual={virtual}
+              dropdownMatchSelectWidth={dropdownMatchSelectWidth}
+              {...selectProps}
+              listHeight={listHeight}
+              listItemHeight={listItemHeight}
+              mode={mode}
+              prefixCls={prefixCls}
+              direction={direction}
+              inputIcon={suffixIcon}
+              menuItemSelectedIcon={itemIcon}
+              removeIcon={removeIcon}
+              clearIcon={clearIcon}
+              notFoundContent={mergedNotFound}
+              className={mergedClassName}
+              getPopupContainer={getPopupContainer || getContextPopupContainer}
+              dropdownClassName={rcSelectRtlDropDownClassName}
+            />
+          );
+        }}
+      </SizeContext.Consumer>
+    );
+  };
 
   render() {
-    const {
-      prefixCls,
-      className = '',
-      size,
-      mode,
-      // @deprecated
-      multiple,
-      tags,
-      combobox,
-      ...restProps,
-    } = this.props;
-    warning(
-      !multiple && !tags && !combobox,
-      '`Select[multiple|tags|combobox]` is deprecated, please use `Select[mode]` instead.',
-    );
-
-    const cls = classNames({
-      [`${prefixCls}-lg`]: size === 'large',
-      [`${prefixCls}-sm`]: size === 'small',
-    }, className);
-
-    const locale = this.getLocale();
-    let { notFoundContent = locale.notFoundContent, optionLabelProp } = this.props;
-    const isCombobox = mode === 'combobox' || combobox;
-    if (isCombobox) {
-      notFoundContent = null;
-      // children 带 dom 结构时，无法填入输入框
-      optionLabelProp = optionLabelProp || 'value';
-    }
-
-    const modeConfig = {
-      multiple: mode === 'multiple' || multiple,
-      tags: mode === 'tags' || tags,
-      combobox: isCombobox,
-    };
-
-    return (
-      <RcSelect
-        {...restProps}
-        {...modeConfig}
-        prefixCls={prefixCls}
-        className={cls}
-        optionLabelProp={optionLabelProp || 'children'}
-        notFoundContent={notFoundContent}
-      />
-    );
+    return <ConfigConsumer>{this.renderSelect}</ConfigConsumer>;
   }
 }
+
+export default Select;

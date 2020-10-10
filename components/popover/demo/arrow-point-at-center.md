@@ -1,7 +1,7 @@
 ---
 order: 4
 title:
-  zh-CN:  箭头指向
+  zh-CN: 箭头指向
   en-US: Arrow pointing
 ---
 
@@ -13,7 +13,7 @@ title:
 
 The arrow points to the center of the target element, which set `arrowPointAtCenter`.
 
-````jsx
+```jsx
 import { Popover, Button } from 'antd';
 
 const text = <span>Title</span>;
@@ -32,6 +32,7 @@ ReactDOM.render(
     <Popover placement="topLeft" title={text} content={content} arrowPointAtCenter>
       <Button>Arrow points to center / 箭头指向中心</Button>
     </Popover>
-  </div>
-, mountNode);
-````
+  </div>,
+  mountNode,
+);
+```

@@ -13,32 +13,38 @@ title:
 
 Basic modal.
 
-````jsx
+```jsx
 import { Modal, Button } from 'antd';
 
 class App extends React.Component {
-  state = { visible: false }
+  state = { visible: false };
+
   showModal = () => {
     this.setState({
       visible: true,
     });
-  }
-  handleOk = (e) => {
+  };
+
+  handleOk = e => {
     console.log(e);
     this.setState({
       visible: false,
     });
-  }
-  handleCancel = (e) => {
+  };
+
+  handleCancel = e => {
     console.log(e);
     this.setState({
       visible: false,
     });
-  }
+  };
+
   render() {
     return (
-      <div>
-        <Button type="primary" onClick={this.showModal}>Open</Button>
+      <>
+        <Button type="primary" onClick={this.showModal}>
+          Open Modal
+        </Button>
         <Modal
           title="Basic Modal"
           visible={this.state.visible}
@@ -49,10 +55,10 @@ class App extends React.Component {
           <p>Some contents...</p>
           <p>Some contents...</p>
         </Modal>
-      </div>
+      </>
     );
   }
 }
 
 ReactDOM.render(<App />, mountNode);
-````
+```

@@ -1,21 +1,22 @@
 ---
 order: 1
-title: 
+title:
   zh-CN: 手风琴
   en-US: Accordion
 ---
 
 ## zh-CN
 
-手风琴，每次只打开一个tab。默认打开第一个。
+手风琴，每次只打开一个 tab。
 
 ## en-US
 
-Accordion mode, only one panel can be expanded at a time. The first panel will be expanded by default.
+In accordion mode, only one panel can be expanded at a time.
 
-````jsx
+```jsx
 import { Collapse } from 'antd';
-const Panel = Collapse.Panel;
+
+const { Panel } = Collapse;
 
 const text = `
   A dog is a type of domesticated animal.
@@ -25,15 +26,16 @@ const text = `
 
 ReactDOM.render(
   <Collapse accordion>
-    <Panel header={'This is panel header 1'} key="1">
+    <Panel header="This is panel header 1" key="1">
       <p>{text}</p>
     </Panel>
-    <Panel header={'This is panel header 2'} key="2">
+    <Panel header="This is panel header 2" key="2">
       <p>{text}</p>
     </Panel>
-    <Panel header={'This is panel header 3'} key="3">
+    <Panel header="This is panel header 3" key="3">
       <p>{text}</p>
     </Panel>
-  </Collapse>
-, mountNode);
-````
+  </Collapse>,
+  mountNode,
+);
+```

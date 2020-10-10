@@ -1,13 +1,23 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import Animate from 'rc-animate';
-import ScrollNumber from './ScrollNumber';
 import classNames from 'classnames';
-import warning from '../_util/warning';
+import ScrollNumber from './ScrollNumber';
+import Ribbon from './Ribbon';
+import { PresetColorType, PresetStatusColorType } from '../_util/colors';
+import { ConfigContext } from '../config-provider';
+import { LiteralUnion } from '../_util/type';
+import { cloneElement } from '../_util/reactNode';
+import { isPresetColor } from './utils';
+
+export { ScrollNumberProps } from './ScrollNumber';
+
+interface CompoundedComponent extends React.FC<BadgeProps> {
+  Ribbon: typeof Ribbon;
+}
 
 export interface BadgeProps {
   /** Number to show in badge */
-  count?: number | string;
+  count?: React.ReactNode;
   showZero?: boolean;
   /** Max count to show */
   overflowCount?: number;
@@ -15,108 +25,199 @@ export interface BadgeProps {
   dot?: boolean;
   style?: React.CSSProperties;
   prefixCls?: string;
+  scrollNumberPrefixCls?: string;
   className?: string;
-  status?: 'success' | 'processing' | 'default' | 'error' | 'warning';
-  text?: string;
+  status?: PresetStatusColorType;
+  color?: LiteralUnion<PresetColorType, string>;
+  text?: React.ReactNode;
+  size?: 'default' | 'small';
+  offset?: [number | string, number | string];
+  title?: string;
 }
 
-export default class Badge extends React.Component<BadgeProps, any> {
-  static defaultProps = {
-    prefixCls: 'ant-badge',
-    count: null,
-    showZero: false,
-    dot: false,
-    overflowCount: 99,
+const Badge: CompoundedComponent = ({
+  prefixCls: customizePrefixCls,
+  scrollNumberPrefixCls: customizeScrollNumberPrefixCls,
+  children,
+  status,
+  text,
+  color,
+  count = null,
+  overflowCount = 99,
+  dot = false,
+  size = 'default',
+  title,
+  offset,
+  style,
+  className,
+  showZero = false,
+  ...restProps
+}) => {
+  const { getPrefixCls, direction } = React.useContext(ConfigContext);
+  const prefixCls = getPrefixCls('badge', customizePrefixCls);
+
+  const getNumberedDisplayCount = () => {
+    const displayCount =
+      (count as number) > (overflowCount as number) ? `${overflowCount}+` : count;
+    return displayCount as string | number | null;
   };
 
-  static propTypes = {
-    count: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-    ]),
-    showZero: PropTypes.bool,
-    dot: PropTypes.bool,
-    overflowCount: PropTypes.number,
+  const hasStatus = (): boolean =>
+    (status !== null && status !== undefined) || (color !== null && color !== undefined);
+
+  const isZero = () => {
+    const numberedDisplayCount = getNumberedDisplayCount();
+    return numberedDisplayCount === '0' || numberedDisplayCount === 0;
   };
 
-  render() {
-    const {
-      count,
-      showZero,
-      prefixCls,
-      overflowCount,
-      className,
-      style,
-      children,
-      dot,
-      status,
-      text,
-      ...restProps,
-    } = this.props;
-    const isDot = dot || status;
-    let displayCount = (count as number) > (overflowCount as number) ? `${overflowCount}+` : count;
+  const isDot = () => {
+    return (dot && !isZero()) || hasStatus();
+  };
+
+  const getDisplayCount = () => {
     // dot mode don't need count
-    if (isDot) {
-      displayCount = '';
+    if (isDot()) {
+      return '';
     }
+    return getNumberedDisplayCount();
+  };
 
-    const isZero = displayCount === '0' || displayCount === 0;
+  const getScrollNumberTitle = () => {
+    if (title) {
+      return title;
+    }
+    return typeof count === 'string' || typeof count === 'number' ? count : undefined;
+  };
+
+  const getStyleWithOffset = () => {
+    if (direction === 'rtl') {
+      return offset
+        ? {
+            left: parseInt(offset[0] as string, 10),
+            marginTop: offset[1],
+            ...style,
+          }
+        : style;
+    }
+    return offset
+      ? {
+          right: -parseInt(offset[0] as string, 10),
+          marginTop: offset[1],
+          ...style,
+        }
+      : style;
+  };
+
+  const isHidden = () => {
+    const displayCount = getDisplayCount();
     const isEmpty = displayCount === null || displayCount === undefined || displayCount === '';
-    const hidden = (isEmpty || (isZero && !showZero)) && !isDot;
-    const scrollNumberCls = classNames({
-      [`${prefixCls}-dot`]: isDot,
-      [`${prefixCls}-count`]: !isDot,
+    return (isEmpty || (isZero() && !showZero)) && !isDot();
+  };
+
+  const renderStatusText = () => {
+    const hidden = isHidden();
+    return hidden || !text ? null : <span className={`${prefixCls}-status-text`}>{text}</span>;
+  };
+
+  const renderDisplayComponent = () => {
+    const customNode = count as React.ReactElement<any>;
+    if (!customNode || typeof customNode !== 'object') {
+      return undefined;
+    }
+    return cloneElement(customNode, {
+      style: {
+        ...getStyleWithOffset(),
+        ...(customNode.props && customNode.props.style),
+      },
     });
-    const badgeCls = classNames(className, prefixCls, {
-      [`${prefixCls}-status`]: !!status,
-      [`${prefixCls}-not-a-wrapper`]: !children,
+  };
+
+  const renderBadgeNumber = () => {
+    const scrollNumberPrefixCls = getPrefixCls('scroll-number', customizeScrollNumberPrefixCls);
+    const displayCount = getDisplayCount();
+    const bDot = isDot();
+    const hidden = isHidden();
+
+    const scrollNumberCls = classNames({
+      [`${prefixCls}-dot`]: bDot,
+      [`${prefixCls}-count`]: !bDot,
+      [`${prefixCls}-count-sm`]: size === 'small',
+      [`${prefixCls}-multiple-words`]:
+        !bDot && count && count.toString && count.toString().length > 1,
+      [`${prefixCls}-status-${status}`]: !!status,
+      [`${prefixCls}-status-${color}`]: isPresetColor(color),
     });
 
-    warning(
-      !(children && status),
-      '`Badge[children]` and `Badge[status]` cannot be used at the same time.',
-    );
-    // <Badge status="success" />
-    if (!children && status) {
-      const statusCls = classNames({
-        [`${prefixCls}-status-dot`]: !!status,
-        [`${prefixCls}-status-${status}`]: true,
-      });
-      return (
-        <span className={badgeCls}>
-          <span className={statusCls} />
-          <span className={`${prefixCls}-status-text`}>{text}</span>
-        </span>
-      );
+    let statusStyle: React.CSSProperties | undefined = getStyleWithOffset();
+    if (color && !isPresetColor(color)) {
+      statusStyle = statusStyle || {};
+      statusStyle.background = color;
     }
 
-    const scrollNumber = hidden ? null : (
+    return hidden ? null : (
       <ScrollNumber
+        prefixCls={scrollNumberPrefixCls}
         data-show={!hidden}
         className={scrollNumberCls}
         count={displayCount}
-        title={count}
-        style={style}
+        displayComponent={renderDisplayComponent()} // <Badge status="success" count={<Icon type="xxx" />}></Badge>
+        title={getScrollNumberTitle()}
+        style={statusStyle}
+        key="scrollNumber"
       />
     );
+  };
 
-    const statusText = (hidden || !text) ? null : (
-      <span className={`${prefixCls}-status-text`}>{text}</span>
-    );
+  const statusCls = classNames({
+    [`${prefixCls}-status-dot`]: hasStatus(),
+    [`${prefixCls}-status-${status}`]: !!status,
+    [`${prefixCls}-status-${color}`]: isPresetColor(color),
+  });
+  const statusStyle: React.CSSProperties = {};
+  if (color && !isPresetColor(color)) {
+    statusStyle.background = color;
+  }
 
+  const badgeClassName = classNames(
+    prefixCls,
+    {
+      [`${prefixCls}-status`]: hasStatus(),
+      [`${prefixCls}-not-a-wrapper`]: !children,
+      [`${prefixCls}-rtl`]: direction === 'rtl',
+    },
+    className,
+  );
+
+  // <Badge status="success" />
+  if (!children && hasStatus()) {
+    const styleWithOffset = getStyleWithOffset();
+    const statusTextColor = styleWithOffset && styleWithOffset.color;
     return (
-      <span {...restProps} className={badgeCls}>
-        {children}
-        <Animate
-          component=""
-          showProp="data-show"
-          transitionName={children ? `${prefixCls}-zoom` : ''}
-          transitionAppear
-        >
-          {scrollNumber}
-        </Animate>
-        {statusText}
+      <span {...restProps} className={badgeClassName} style={styleWithOffset}>
+        <span className={statusCls} style={statusStyle} />
+        <span style={{ color: statusTextColor }} className={`${prefixCls}-status-text`}>
+          {text}
+        </span>
       </span>
     );
   }
-}
+
+  return (
+    <span {...restProps} className={badgeClassName}>
+      {children}
+      <Animate
+        component=""
+        showProp="data-show"
+        transitionName={children ? `${prefixCls}-zoom` : ''}
+        transitionAppear
+      >
+        {renderBadgeNumber()}
+      </Animate>
+      {renderStatusText()}
+    </span>
+  );
+};
+
+Badge.Ribbon = Ribbon;
+
+export default Badge;

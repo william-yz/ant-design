@@ -1,26 +1,17 @@
-import React from 'react';
+import { ColumnType } from './interface';
 
-export interface ColumnProps<T> {
-  title?: React.ReactNode;
-  key?: string;
-  dataIndex?: string;
-  render?: (text: any, record: T, index: number) => React.ReactNode;
-  filters?: { text: string; value: string, children?: any[] }[];
-  onFilter?: (value: any, record: T) => boolean;
-  filterMultiple?: boolean;
-  filterDropdown?: React.ReactNode;
-  filterDropdownVisible?: boolean;
-  onFilterDropdownVisibleChange?: (visible: boolean) => void;
-  sorter?: boolean | ((a: any, b: any) => number);
-  colSpan?: number;
-  width?: string | number;
-  className?: string;
-  fixed?: boolean | ('left' | 'right');
-  filterIcon?: React.ReactNode;
-  filteredValue?: any[];
-  sortOrder?: boolean | ('ascend' | 'descend');
-  children?: ColumnProps<T>[];
-  onCellClick?: (record: T, event: any) => void;
+export interface ColumnProps<RecordType> extends ColumnType<RecordType> {
+  children?: null;
 }
 
-export default class Column<T> extends React.Component<ColumnProps<T>, React.ComponentState> {}
+/* istanbul ignore next */
+/**
+ * This is a syntactic sugar for `columns` prop.
+ * So HOC will not work on this.
+ */
+// eslint-disable-next-line no-unused-vars
+function Column<RecordType>(_: ColumnProps<RecordType>) {
+  return null;
+}
+
+export default Column;

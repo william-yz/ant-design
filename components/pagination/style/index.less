@@ -1,76 +1,90 @@
-@import "../../style/themes/default";
-@import "../../style/mixins/index";
-@import "../../input/style/mixin";
+@import '../../style/themes/index';
+@import '../../style/mixins/index';
+@import '../../input/style/mixin';
 
-@pagination-prefix-cls: ~"@{ant-prefix}-pagination";
+@pagination-prefix-cls: ~'@{ant-prefix}-pagination';
 
 .@{pagination-prefix-cls} {
-  font-size: @font-size-base;
+  .reset-component;
 
-  &:after {
-    content: " ";
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &::after {
     display: block;
-    height: 0;
     clear: both;
+    height: 0;
     overflow: hidden;
     visibility: hidden;
+    content: ' ';
   }
 
   &-total-text {
     display: inline-block;
-    vertical-align: middle;
-    height: 28px;
-    line-height: 28px;
+    height: @pagination-item-size;
     margin-right: 8px;
+    line-height: @pagination-item-size - 2px;
+    vertical-align: middle;
   }
 
   &-item {
-    cursor: pointer;
-    border-radius: @border-radius-base;
-    user-select: none;
-    min-width: 28px;
-    height: 28px;
-    line-height: 28px;
-    text-align: center;
-    list-style: none;
     display: inline-block;
-    vertical-align: middle;
-    border: @border-width-base @border-style-base @border-color-base;
-    background-color: @component-background;
+    min-width: @pagination-item-size;
+    height: @pagination-item-size;
     margin-right: 8px;
-    font-family: Arial;
+    font-family: @pagination-font-family;
+    line-height: @pagination-item-size - 2px;
+    text-align: center;
+    vertical-align: middle;
+    list-style: none;
+    background-color: @pagination-item-bg;
+    border: @border-width-base @border-style-base @border-color-base;
+    border-radius: @border-radius-base;
     outline: 0;
+    cursor: pointer;
+    user-select: none;
 
     a {
-      text-decoration: none;
+      display: block;
+      padding: 0 6px;
       color: @text-color;
       transition: none;
-      margin: 0 6px;
+
+      &:hover {
+        text-decoration: none;
+      }
     }
 
     &:focus,
     &:hover {
-      transition: all .3s;
       border-color: @primary-color;
+      transition: all 0.3s;
       a {
         color: @primary-color;
       }
     }
 
     &-active {
-      background-color: @primary-color;
+      font-weight: @pagination-font-weight-active;
+      background: @pagination-item-bg-active;
       border-color: @primary-color;
+
+      a {
+        color: @primary-color;
+      }
 
       &:focus,
       &:hover {
-        background-color: @primary-5;
         border-color: @primary-5;
       }
 
-      a,
       &:focus a,
       &:hover a {
-        color: #fff;
+        color: @primary-5;
       }
     }
   }
@@ -78,40 +92,49 @@
   &-jump-prev,
   &-jump-next {
     outline: 0;
+    .@{pagination-prefix-cls}-item-container {
+      position: relative;
 
-    &:after {
-      content: "•••";
-      display: block;
-      letter-spacing: 2px;
-      color: @disabled-color;
-      text-align: center;
-    }
-
-    &:focus,
-    &:hover {
-      &:after {
+      .@{pagination-prefix-cls}-item-link-icon {
         color: @primary-color;
-        .iconfont-size-under-12px(8px);
+        font-size: @font-size-sm;
         letter-spacing: -1px;
-        font-family: "anticon";
+        opacity: 0;
+        transition: all 0.2s;
+        &-svg {
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          margin: auto;
+        }
+      }
+
+      .@{pagination-prefix-cls}-item-ellipsis {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: block;
+        margin: auto;
+        color: @disabled-color;
+        font-family: Arial, Helvetica, sans-serif;
+        letter-spacing: 2px;
+        text-align: center;
+        text-indent: 0.13em;
+        opacity: 1;
+        transition: all 0.2s;
       }
     }
-  }
 
-  &-jump-prev {
     &:focus,
     &:hover {
-      &:after {
-        content: "\e620\e620";
+      .@{pagination-prefix-cls}-item-link-icon {
+        opacity: 1;
       }
-    }
-  }
-
-  &-jump-next {
-    &:focus,
-    &:hover {
-      &:after {
-        content: "\e61f\e61f";
+      .@{pagination-prefix-cls}-item-ellipsis {
+        opacity: 0;
       }
     }
   }
@@ -125,70 +148,52 @@
   &-next,
   &-jump-prev,
   &-jump-next {
-    font-family: Arial;
-    cursor: pointer;
-    color: @text-color;
-    border-radius: @border-radius-base;
-    list-style: none;
-    min-width: 28px;
-    height: 28px;
-    line-height: 28px;
-    text-align: center;
-    transition: all .3s;
     display: inline-block;
+    min-width: @pagination-item-size;
+    height: @pagination-item-size;
+    color: @text-color;
+    font-family: @pagination-font-family;
+    line-height: @pagination-item-size;
+    text-align: center;
     vertical-align: middle;
+    list-style: none;
+    border-radius: @border-radius-base;
+    cursor: pointer;
+    transition: all 0.3s;
   }
 
   &-prev,
   &-next {
+    font-family: Arial, Helvetica, sans-serif;
     outline: 0;
 
-    a {
+    button {
       color: @text-color;
+      cursor: pointer;
       user-select: none;
     }
 
-    &:hover a {
-      color: @primary-color;
+    &:hover button {
+      border-color: @primary-5;
     }
 
     .@{pagination-prefix-cls}-item-link {
+      display: block;
+      width: 100%;
+      height: 100%;
+      font-size: 12px;
+      text-align: center;
+      background-color: @pagination-item-link-bg;
       border: @border-width-base @border-style-base @border-color-base;
-      background-color: @component-background;
       border-radius: @border-radius-base;
       outline: none;
-      display: block;
-      transition: all .3s;
-
-      &:after {
-        .iconfont-size-under-12px(8px);
-        display: block;
-        height: 26px;
-        line-height: 26px;
-        font-family: "anticon";
-        text-align: center;
-        font-weight: 500;
-      }
+      transition: all 0.3s;
     }
 
     &:focus .@{pagination-prefix-cls}-item-link,
     &:hover .@{pagination-prefix-cls}-item-link {
-      border-color: @primary-color;
       color: @primary-color;
-    }
-  }
-
-  &-prev {
-    .@{pagination-prefix-cls}-item-link:after {
-      content: "\e620";
-      display: block;
-    }
-  }
-
-  &-next {
-    .@{pagination-prefix-cls}-item-link:after {
-      content: "\e61f";
-      display: block;
+      border-color: @primary-color;
     }
   }
 
@@ -197,10 +202,9 @@
     &:hover,
     &:focus {
       cursor: not-allowed;
-      a,
       .@{pagination-prefix-cls}-item-link {
-        border-color: @border-color-base;
         color: @disabled-color;
+        border-color: @border-color-base;
         cursor: not-allowed;
       }
     }
@@ -212,11 +216,20 @@
 
   &-options {
     display: inline-block;
-    vertical-align: middle;
     margin-left: 16px;
+    vertical-align: middle;
 
-    &-size-changer {
+    // IE11 css hack. `*::-ms-backdrop,` is a must have
+    @media all and (-ms-high-contrast: none) {
+      *::-ms-backdrop,
+      & {
+        vertical-align: top;
+      }
+    }
+
+    &-size-changer.@{ant-prefix}-select {
       display: inline-block;
+      width: auto;
       margin-right: 8px;
     }
 
@@ -224,106 +237,175 @@
       display: inline-block;
       height: @input-height-base;
       line-height: @input-height-base;
+      vertical-align: top;
 
       input {
         .input;
-        margin: 0 8px;
+
         width: 50px;
+        margin: 0 8px;
       }
     }
   }
 
   &-simple &-prev,
   &-simple &-next {
-    height: 24px;
-    line-height: 24px;
+    height: @pagination-item-size-sm;
+    line-height: @pagination-item-size-sm;
     vertical-align: top;
     .@{pagination-prefix-cls}-item-link {
+      height: @pagination-item-size-sm;
+      background-color: transparent;
       border: 0;
-      height: 24px;
-      &:after {
-        line-height: 24px;
+      &::after {
+        height: @pagination-item-size-sm;
+        line-height: @pagination-item-size-sm;
       }
     }
   }
 
   &-simple &-simple-pager {
     display: inline-block;
+    height: @pagination-item-size-sm;
     margin-right: 8px;
-    height: 24px;
 
     input {
-      margin-right: 8px;
       box-sizing: border-box;
-      background-color: @component-background;
-      border-radius: @border-radius-base;
-      border: @border-width-base @border-style-base @border-color-base;
-      outline: none;
-      padding: 0 6px;
       height: 100%;
+      margin-right: 8px;
+      padding: 0 6px;
       text-align: center;
-      transition: border-color .3s;
+      background-color: @pagination-item-input-bg;
+      border: @border-width-base @border-style-base @border-color-base;
+      border-radius: @border-radius-base;
+      outline: none;
+      transition: border-color 0.3s;
 
       &:hover {
         border-color: @primary-color;
       }
+
+      &[disabled] {
+        color: @disabled-color;
+        background: @disabled-bg;
+        border-color: @border-color-base;
+        cursor: not-allowed;
+      }
     }
   }
-}
 
-.@{pagination-prefix-cls} {
   &.mini &-total-text,
   &.mini &-simple-pager {
-    height: 20px;
-    line-height: 20px;
+    height: @pagination-item-size-sm;
+    line-height: @pagination-item-size-sm;
   }
 
   &.mini &-item {
-    border: 0;
+    min-width: @pagination-item-size-sm;
+    height: @pagination-item-size-sm;
     margin: 0;
-    min-width: 20px;
-    height: 20px;
-    line-height: 20px;
+    line-height: @pagination-item-size-sm - 2px;
+  }
+
+  &.mini &-item:not(&-item-active) {
+    background: transparent;
+    border-color: transparent;
   }
 
   &.mini &-prev,
   &.mini &-next {
+    min-width: @pagination-item-size-sm;
+    height: @pagination-item-size-sm;
     margin: 0;
-    min-width: 20px;
-    height: 20px;
-    line-height: 20px;
+    line-height: @pagination-item-size-sm;
   }
 
   &.mini &-prev &-item-link,
   &.mini &-next &-item-link {
-    border: 0;
-    &:after {
-      height: 20px;
-      line-height: 20px;
+    background: transparent;
+    border-color: transparent;
+    &::after {
+      height: @pagination-item-size-sm;
+      line-height: @pagination-item-size-sm;
     }
   }
 
   &.mini &-jump-prev,
   &.mini &-jump-next {
-    height: 20px;
-    line-height: 20px;
+    height: @pagination-item-size-sm;
+    margin-right: 0;
+    line-height: @pagination-item-size-sm;
   }
 
   &.mini &-options {
-    margin-left: 8px;
+    margin-left: 2px;
+
+    &-size-changer {
+      top: @pagination-mini-options-size-changer-top;
+    }
+
     &-quick-jumper {
-      height: 20px;
-      line-height: 20px;
+      height: @pagination-item-size-sm;
+      line-height: @pagination-item-size-sm;
 
       input {
         .input-sm;
+
         width: 44px;
       }
     }
   }
+
+  // ============================ Disabled ============================
+  &&-disabled {
+    cursor: not-allowed;
+
+    .@{pagination-prefix-cls}-item {
+      background: @disabled-bg;
+      border-color: @border-color-base;
+      cursor: not-allowed;
+
+      a {
+        color: @disabled-color;
+        background: transparent;
+        border: none;
+        cursor: not-allowed;
+      }
+
+      &-active {
+        background: @pagination-item-disabled-bg-active;
+        border-color: transparent;
+        a {
+          color: @pagination-item-disabled-color-active;
+        }
+      }
+    }
+
+    .@{pagination-prefix-cls}-item-link {
+      color: @disabled-color;
+      background: @disabled-bg;
+      border-color: @border-color-base;
+      cursor: not-allowed;
+      .@{pagination-prefix-cls}-simple& {
+        background: transparent;
+      }
+    }
+
+    .@{pagination-prefix-cls}-item-link-icon {
+      opacity: 0;
+    }
+
+    .@{pagination-prefix-cls}-item-ellipsis {
+      opacity: 1;
+    }
+
+    .@{pagination-prefix-cls}-simple-pager {
+      color: @disabled-color;
+    }
+  }
 }
 
-@media only screen and (max-width: 1024px) {
+@media only screen and (max-width: @screen-lg) {
   .@{pagination-prefix-cls}-item {
     &-after-jump-prev,
     &-before-jump-next {
@@ -331,3 +413,11 @@
     }
   }
 }
+
+@media only screen and (max-width: @screen-sm) {
+  .@{pagination-prefix-cls}-options {
+    display: none;
+  }
+}
+
+@import './rtl';

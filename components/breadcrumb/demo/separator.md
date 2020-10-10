@@ -1,6 +1,6 @@
 ---
 order: 4
-title: 
+title:
   zh-CN: 分隔符
   en-US: Configuring the Separator
 ---
@@ -11,9 +11,9 @@ title:
 
 ## en-US
 
-The separator can be customized by setting the separator property: separator=">"
+The separator can be customized by setting the separator property: `separator=">"`.
 
-````jsx
+```jsx
 import { Breadcrumb } from 'antd';
 
 ReactDOM.render(
@@ -22,6 +22,7 @@ ReactDOM.render(
     <Breadcrumb.Item href="">Application Center</Breadcrumb.Item>
     <Breadcrumb.Item href="">Application List</Breadcrumb.Item>
     <Breadcrumb.Item>An Application</Breadcrumb.Item>
-  </Breadcrumb>
-, mountNode);
-````
+  </Breadcrumb>,
+  mountNode,
+);
+```

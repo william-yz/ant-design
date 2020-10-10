@@ -13,7 +13,7 @@ title:
 
 Standalone badge with status.
 
-````jsx
+```jsx
 import { Badge } from 'antd';
 
 ReactDOM.render(
@@ -33,6 +33,7 @@ ReactDOM.render(
     <Badge status="processing" text="Processing" />
     <br />
     <Badge status="warning" text="Warning" />
-  </div>
-, mountNode);
-````
+  </div>,
+  mountNode,
+);
+```

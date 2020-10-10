@@ -1,5 +1,5 @@
 ---
-order: 4
+order: 5
 title:
   zh-CN: 其他字符
   en-US: Other Character
@@ -13,16 +13,18 @@ title:
 
 Replace the default star to other character like alphabet, digit, iconfont or even Chinese word.
 
-````jsx
-import { Rate, Icon } from 'antd';
+```jsx
+import { Rate } from 'antd';
+import { HeartOutlined } from '@ant-design/icons';
 
 ReactDOM.render(
-  <div>
-    <Rate character={<Icon type="heart" />} allowHalf />
+  <>
+    <Rate character={<HeartOutlined />} allowHalf />
     <br />
     <Rate character="A" allowHalf style={{ fontSize: 36 }} />
     <br />
     <Rate character="好" allowHalf />
-  </div>
-, mountNode);
-````
+  </>,
+  mountNode,
+);
+```

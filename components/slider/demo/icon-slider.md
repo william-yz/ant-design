@@ -13,43 +13,39 @@ title:
 
 You can add an icon beside the slider to make it meaningful.
 
-````jsx
-import { Slider, Icon } from 'antd';
+```jsx
+import { Slider } from 'antd';
+import { FrownOutlined, SmileOutlined } from '@ant-design/icons';
 
 class IconSlider extends React.Component {
-  constructor(props) {
-    super(props);
-    const { max, min } = props;
-    const mid = ((max - min) / 2).toFixed(5);
-    this.state = {
-      preIconClass: this.props.value >= mid ? '' : 'anticon-highlight',
-      nextIconClass: this.props.value >= mid ? 'anticon-highlight' : '',
-      mid,
-      sliderValue: this.props.value,
-    };
-  }
-  handleChange = (v) => {
-    this.setState({
-      preIconClass: v >= this.state.mid ? '' : 'anticon-highlight',
-      nextIconClass: v >= this.state.mid ? 'anticon-highlight' : '',
-      sliderValue: v,
-    });
-  }
+  state = {
+    value: 0,
+  };
+
+  handleChange = value => {
+    this.setState({ value });
+  };
+
   render() {
+    const { max, min } = this.props;
+    const { value } = this.state;
+    const mid = ((max - min) / 2).toFixed(5);
+    const preColorCls = value >= mid ? '' : 'icon-wrapper-active';
+    const nextColorCls = value >= mid ? 'icon-wrapper-active' : '';
     return (
       <div className="icon-wrapper">
-        <Icon className={this.state.preIconClass} type={this.props.icon[0]} />
-        <Slider {...this.props} onChange={this.handleChange} value={this.state.sliderValue} />
-        <Icon className={this.state.nextIconClass} type={this.props.icon[1]} />
+        <FrownOutlined className={preColorCls} />
+        <Slider {...this.props} onChange={this.handleChange} value={value} />
+        <SmileOutlined className={nextColorCls} />
       </div>
     );
   }
 }
 
-ReactDOM.render(<IconSlider min={0} max={20} value={0} icon={['frown-o', 'smile-o']} />, mountNode);
-````
+ReactDOM.render(<IconSlider min={0} max={20} />, mountNode);
+```
 
-````css
+```css
 .icon-wrapper {
   position: relative;
   padding: 0px 30px;
@@ -57,12 +53,16 @@ ReactDOM.render(<IconSlider min={0} max={20} value={0} icon={['frown-o', 'smile-
 
 .icon-wrapper .anticon {
   position: absolute;
-  top: -3px;
+  top: -2px;
   width: 16px;
   height: 16px;
   line-height: 1;
   font-size: 16px;
-  color: @disabled-color;
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.icon-wrapper .icon-wrapper-active {
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .icon-wrapper .anticon:first-child {
@@ -72,8 +72,13 @@ ReactDOM.render(<IconSlider min={0} max={20} value={0} icon={['frown-o', 'smile-
 .icon-wrapper .anticon:last-child {
   right: 0;
 }
+```
 
-.anticon.anticon-highlight {
-  color: #666;
-}
-````
+<style>
+  [data-theme="dark"] .icon-wrapper .anticon {
+    color: rgba(255, 255, 255, 0.25);
+  }
+  [data-theme="dark"] .icon-wrapper .icon-wrapper-active {
+    color: rgba(255, 255, 255, .45);
+  }
+</style>

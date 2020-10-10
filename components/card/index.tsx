@@ -1,127 +1,214 @@
-import React, { Component, Children } from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
-import addEventListener from 'rc-util/lib/Dom/addEventListener';
+import omit from 'omit.js';
 import Grid from './Grid';
-import { throttleByAnimationFrameDecorator } from '../_util/throttleByAnimationFrame';
+import Meta from './Meta';
+import Tabs, { TabsProps } from '../tabs';
+import Row from '../row';
+import Col from '../col';
+import { ConfigContext } from '../config-provider';
+import { Omit } from '../_util/type';
+import SizeContext from '../config-provider/SizeContext';
 
-export interface CardProps {
+function getAction(actions: React.ReactNode[]) {
+  const actionList = actions.map((action, index) => (
+    // eslint-disable-next-line react/no-array-index-key
+    <li style={{ width: `${100 / actions.length}%` }} key={`action-${index}`}>
+      <span>{action}</span>
+    </li>
+  ));
+  return actionList;
+}
+
+export { CardGridProps } from './Grid';
+export { CardMetaProps } from './Meta';
+
+export type CardType = 'inner';
+export type CardSize = 'default' | 'small';
+
+export interface CardTabListType {
+  key: string;
+  tab: React.ReactNode;
+  disabled?: boolean;
+}
+
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   prefixCls?: string;
   title?: React.ReactNode;
   extra?: React.ReactNode;
   bordered?: boolean;
+  headStyle?: React.CSSProperties;
   bodyStyle?: React.CSSProperties;
   style?: React.CSSProperties;
   loading?: boolean;
-  noHovering?: boolean;
+  hoverable?: boolean;
   children?: React.ReactNode;
   id?: string;
   className?: string;
+  size?: CardSize;
+  type?: CardType;
+  cover?: React.ReactNode;
+  actions?: React.ReactNode[];
+  tabList?: CardTabListType[];
+  tabBarExtraContent?: React.ReactNode | null;
+  onTabChange?: (key: string) => void;
+  activeTabKey?: string;
+  defaultActiveTabKey?: string;
+  tabProps?: TabsProps;
 }
 
-export default class Card extends Component<CardProps, {}> {
-  static Grid: typeof Grid = Grid;
-  container: HTMLDivElement;
-  resizeEvent: any;
-  updateWiderPaddingCalled: boolean;
-  state = {
-    widerPadding: false,
+export interface CardInterface extends React.FC<CardProps> {
+  Grid: typeof Grid;
+  Meta: typeof Meta;
+}
+
+const Card: CardInterface = props => {
+  const { getPrefixCls, direction } = React.useContext(ConfigContext);
+  const size = React.useContext(SizeContext);
+
+  const onTabChange = (key: string) => {
+    if (props.onTabChange) {
+      props.onTabChange(key);
+    }
   };
-  componentDidMount() {
-    this.updateWiderPadding();
-    this.resizeEvent = addEventListener(window, 'resize', this.updateWiderPadding);
-  }
-  componentWillUnmount() {
-    if (this.resizeEvent) {
-      this.resizeEvent.remove();
-    }
-    (this.updateWiderPadding as any).cancel();
-  }
-  @throttleByAnimationFrameDecorator()
-  updateWiderPadding() {
-    if (!this.container) {
-      return;
-    }
-    // 936 is a magic card width pixer number indicated by designer
-    const WIDTH_BOUDARY_PX = 936;
-    if (this.container.offsetWidth >= WIDTH_BOUDARY_PX && !this.state.widerPadding) {
-      this.setState({ widerPadding: true }, () => {
-        this.updateWiderPaddingCalled = true; // first render without css transition
-      });
-    }
-    if (this.container.offsetWidth < WIDTH_BOUDARY_PX && this.state.widerPadding) {
-      this.setState({ widerPadding: false }, () => {
-        this.updateWiderPaddingCalled = true; // first render without css transition
-      });
-    }
-  }
-  saveRef = (node: HTMLDivElement) => {
-    this.container = node;
-  }
-  isContainGrid() {
+
+  const isContainGrid = () => {
     let containGrid;
-    Children.forEach(this.props.children, (element: JSX.Element) => {
+    React.Children.forEach(props.children, (element: JSX.Element) => {
       if (element && element.type && element.type === Grid) {
         containGrid = true;
       }
     });
     return containGrid;
-  }
-  render() {
-    const {
-      prefixCls = 'ant-card', className, extra, bodyStyle, noHovering,
-      title, loading, bordered = true, ...others,
-    } = this.props;
-    let children = this.props.children;
+  };
 
-    const classString = classNames(prefixCls, className, {
-      [`${prefixCls}-loading`]: loading,
-      [`${prefixCls}-bordered`]: bordered,
-      [`${prefixCls}-no-hovering`]: noHovering,
-      [`${prefixCls}-wider-padding`]: this.state.widerPadding,
-      [`${prefixCls}-padding-transition`]: this.updateWiderPaddingCalled,
-      [`${prefixCls}-contain-grid`]: this.isContainGrid(),
-    });
+  const {
+    prefixCls: customizePrefixCls,
+    className,
+    extra,
+    headStyle = {},
+    bodyStyle = {},
+    title,
+    loading,
+    bordered = true,
+    size: customizeSize,
+    type,
+    cover,
+    actions,
+    tabList,
+    children,
+    activeTabKey,
+    defaultActiveTabKey,
+    tabBarExtraContent,
+    hoverable,
+    tabProps = {},
+    ...others
+  } = props;
 
-    if (loading) {
-      children = (
-        <div className={`${prefixCls}-loading-content`}>
-          <p className={`${prefixCls}-loading-block`} style={{ width: '94%' }} />
-          <p>
-            <span className={`${prefixCls}-loading-block`} style={{ width: '28%' }} />
-            <span className={`${prefixCls}-loading-block`} style={{ width: '62%' }} />
-          </p>
-          <p>
-            <span className={`${prefixCls}-loading-block`} style={{ width: '22%' }} />
-            <span className={`${prefixCls}-loading-block`} style={{ width: '66%' }} />
-          </p>
-          <p>
-            <span className={`${prefixCls}-loading-block`} style={{ width: '56%' }} />
-            <span className={`${prefixCls}-loading-block`} style={{ width: '39%' }} />
-          </p>
-          <p>
-            <span className={`${prefixCls}-loading-block`} style={{ width: '21%' }} />
-            <span className={`${prefixCls}-loading-block`} style={{ width: '15%' }} />
-            <span className={`${prefixCls}-loading-block`} style={{ width: '40%' }} />
-          </p>
+  const prefixCls = getPrefixCls('card', customizePrefixCls);
+
+  const loadingBlockStyle =
+    bodyStyle.padding === 0 || bodyStyle.padding === '0px' ? { padding: 24 } : undefined;
+
+  const block = <div className={`${prefixCls}-loading-block`} />;
+
+  const loadingBlock = (
+    <div className={`${prefixCls}-loading-content`} style={loadingBlockStyle}>
+      <Row gutter={8}>
+        <Col span={22}>{block}</Col>
+      </Row>
+      <Row gutter={8}>
+        <Col span={8}>{block}</Col>
+        <Col span={15}>{block}</Col>
+      </Row>
+      <Row gutter={8}>
+        <Col span={6}>{block}</Col>
+        <Col span={18}>{block}</Col>
+      </Row>
+      <Row gutter={8}>
+        <Col span={13}>{block}</Col>
+        <Col span={9}>{block}</Col>
+      </Row>
+      <Row gutter={8}>
+        <Col span={4}>{block}</Col>
+        <Col span={3}>{block}</Col>
+        <Col span={16}>{block}</Col>
+      </Row>
+    </div>
+  );
+
+  const hasActiveTabKey = activeTabKey !== undefined;
+  const extraProps = {
+    ...tabProps,
+    [hasActiveTabKey ? 'activeKey' : 'defaultActiveKey']: hasActiveTabKey
+      ? activeTabKey
+      : defaultActiveTabKey,
+    tabBarExtraContent,
+  };
+
+  let head: React.ReactNode;
+  const tabs =
+    tabList && tabList.length ? (
+      <Tabs
+        size="large"
+        {...extraProps}
+        className={`${prefixCls}-head-tabs`}
+        onChange={onTabChange}
+      >
+        {tabList.map(item => (
+          <Tabs.TabPane tab={item.tab} disabled={item.disabled} key={item.key} />
+        ))}
+      </Tabs>
+    ) : null;
+  if (title || extra || tabs) {
+    head = (
+      <div className={`${prefixCls}-head`} style={headStyle}>
+        <div className={`${prefixCls}-head-wrapper`}>
+          {title && <div className={`${prefixCls}-head-title`}>{title}</div>}
+          {extra && <div className={`${prefixCls}-extra`}>{extra}</div>}
         </div>
-      );
-    }
-
-    let head;
-    if (title || extra) {
-      head = (
-        <div className={`${prefixCls}-head`}>
-          {title ? <div className={`${prefixCls}-head-title`}>{title}</div> : null}
-          {extra ? <div className={`${prefixCls}-extra`}>{extra}</div> : null}
-        </div>
-      );
-    }
-
-    return (
-      <div {...others} className={classString} ref={this.saveRef}>
-        {head}
-        <div className={`${prefixCls}-body`} style={bodyStyle}>{children}</div>
+        {tabs}
       </div>
     );
   }
-}
+  const coverDom = cover ? <div className={`${prefixCls}-cover`}>{cover}</div> : null;
+  const body = (
+    <div className={`${prefixCls}-body`} style={bodyStyle}>
+      {loading ? loadingBlock : children}
+    </div>
+  );
+  const actionDom =
+    actions && actions.length ? (
+      <ul className={`${prefixCls}-actions`}>{getAction(actions)}</ul>
+    ) : null;
+  const divProps = omit(others, ['onTabChange']);
+  const mergedSize = customizeSize || size;
+  const classString = classNames(
+    prefixCls,
+    {
+      [`${prefixCls}-loading`]: loading,
+      [`${prefixCls}-bordered`]: bordered,
+      [`${prefixCls}-hoverable`]: hoverable,
+      [`${prefixCls}-contain-grid`]: isContainGrid(),
+      [`${prefixCls}-contain-tabs`]: tabList && tabList.length,
+      [`${prefixCls}-${mergedSize}`]: mergedSize,
+      [`${prefixCls}-type-${type}`]: !!type,
+      [`${prefixCls}-rtl`]: direction === 'rtl',
+    },
+    className,
+  );
+
+  return (
+    <div {...divProps} className={classString}>
+      {head}
+      {coverDom}
+      {body}
+      {actionDom}
+    </div>
+  );
+};
+
+Card.Grid = Grid;
+Card.Meta = Meta;
+
+export default Card;

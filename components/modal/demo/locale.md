@@ -13,25 +13,31 @@ title:
 
 To customize the text of the buttons, you need to set `okText` and `cancelText` props.
 
-````jsx
-import { Modal, Button } from 'antd';
+```jsx
+import { Modal, Button, Space } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 class LocalizedModal extends React.Component {
-  state = { visible: false }
+  state = { visible: false };
+
   showModal = () => {
     this.setState({
       visible: true,
     });
-  }
+  };
+
   hideModal = () => {
     this.setState({
       visible: false,
     });
-  }
+  };
+
   render() {
     return (
-      <div>
-        <Button type="primary" onClick={this.showModal}>Modal</Button>
+      <>
+        <Button type="primary" onClick={this.showModal}>
+          Modal
+        </Button>
         <Modal
           title="Modal"
           visible={this.state.visible}
@@ -44,7 +50,7 @@ class LocalizedModal extends React.Component {
           <p>Bla bla ...</p>
           <p>Bla bla ...</p>
         </Modal>
-      </div>
+      </>
     );
   }
 }
@@ -52,6 +58,7 @@ class LocalizedModal extends React.Component {
 function confirm() {
   Modal.confirm({
     title: 'Confirm',
+    icon: <ExclamationCircleOutlined />,
     content: 'Bla bla ...',
     okText: '确认',
     cancelText: '取消',
@@ -59,11 +66,10 @@ function confirm() {
 }
 
 ReactDOM.render(
-  <div>
+  <Space>
     <LocalizedModal />
-    <br />
     <Button onClick={confirm}>Confirm</Button>
-  </div>,
-  mountNode
+  </Space>,
+  mountNode,
 );
-````
+```

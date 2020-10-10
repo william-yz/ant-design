@@ -13,9 +13,10 @@ title:
 
 `Collapse` is nested inside the `Collapse`.
 
-````jsx
+```jsx
 import { Collapse } from 'antd';
-const Panel = Collapse.Panel;
+
+const { Panel } = Collapse;
 
 function callback(key) {
   console.log(key);
@@ -29,19 +30,20 @@ const text = `
 
 ReactDOM.render(
   <Collapse onChange={callback}>
-    <Panel header={'This is panel header 1'} key="1">
+    <Panel header="This is panel header 1" key="1">
       <Collapse defaultActiveKey="1">
-        <Panel header={'This is panel nest panel'} key="1">
+        <Panel header="This is panel nest panel" key="1">
           <p>{text}</p>
         </Panel>
       </Collapse>
     </Panel>
-    <Panel header={'This is panel header 2'} key="2">
+    <Panel header="This is panel header 2" key="2">
       <p>{text}</p>
     </Panel>
-    <Panel header={'This is panel header 3'} key="3">
+    <Panel header="This is panel header 3" key="3">
       <p>{text}</p>
     </Panel>
-  </Collapse>
-, mountNode);
-````
+  </Collapse>,
+  mountNode,
+);
+```

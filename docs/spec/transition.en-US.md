@@ -1,5 +1,6 @@
 ---
-category: Principles
+category: Design Patterns
+type: Principles
 order: 9
 title: Use Transition
 ---
@@ -63,10 +64,10 @@ Calling out an Object: Click the page element and call out a new object.
 
 ## Improve Perceived Performance
 
-If actual performance can hardly improved, there is a difference between actual performance and perceived performance. Diverting the user’s attention is a good way to improve the perceived time an operation takes.
+If actual performance can hardly improved, there is a difference between actual performance and perceived performance. Diverting the user's attention is a good way to improve the perceived time an operation takes.
 
 ---
 
 ## Natural Motion
 
-Please refer to [Ant Motion, a motion language](http://motion.ant.design/#/language/).
+Please refer to [Ant Motion, a motion language](https://motion.ant.design/language/basic).

@@ -13,7 +13,7 @@ title:
 
 There are 12 `placement` options available.
 
-````jsx
+```jsx
 import { Popover, Button } from 'antd';
 
 const text = <span>Title</span>;
@@ -50,7 +50,7 @@ ReactDOM.render(
         <Button>LB</Button>
       </Popover>
     </div>
-    <div style={{ width: buttonWidth, marginLeft: (buttonWidth * 4) + 24 }}>
+    <div style={{ width: buttonWidth, marginLeft: buttonWidth * 4 + 24 }}>
       <Popover placement="rightTop" title={text} content={content} trigger="click">
         <Button>RT</Button>
       </Popover>
@@ -72,16 +72,27 @@ ReactDOM.render(
         <Button>BR</Button>
       </Popover>
     </div>
-  </div>
-, mountNode);
-````
+  </div>,
+  mountNode,
+);
+```
 
 <style>
+.code-box-demo .demo {
+  overflow: auto;
+}
 .code-box-demo .ant-btn {
   margin-right: 8px;
   margin-bottom: 8px;
 }
+.code-box-demo .ant-btn-rtl {
+  margin-right: 0;
+  margin-left: 8px;
+  margin-bottom: 8px;
+}
 #components-popover-demo-placement .ant-btn {
   width: 70px;
+  text-align: center;
+  padding: 0;
 }
 </style>

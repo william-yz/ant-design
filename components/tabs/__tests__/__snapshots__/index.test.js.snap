@@ -1,152 +1,206 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Tabs tabPosition remove card 1`] = `
-<Tabs
-  hideAdd={false}
-  prefixCls="ant-tabs"
-  tabBarExtraContent="xxx"
-  tabPosition="left"
+exports[`Tabs renderTabBar custom-tab-bar 1`] = `
+<div
+  class="ant-tabs ant-tabs-top"
 >
-  <Tabs
-    className="ant-tabs-vertical ant-tabs-line"
-    destroyInactiveTabPane={false}
-    hideAdd={false}
-    onChange={[Function]}
-    prefixCls="ant-tabs"
-    renderTabBar={[Function]}
-    renderTabContent={[Function]}
-    style={Object {}}
-    tabBarExtraContent="xxx"
-    tabBarPosition="left"
-    tabPosition="left"
+  <div>
+    custom-tab-bar
+  </div>
+  <div
+    class="ant-tabs-content-holder"
   >
     <div
-      className="ant-tabs ant-tabs-left ant-tabs-vertical ant-tabs-line"
-      style={Object {}}
+      class="ant-tabs-content ant-tabs-content-top"
     >
-      <ScrollableInkTabBar
-        activeKey="1"
-        extraContent={
+      <div
+        aria-hidden="false"
+        class="ant-tabs-tabpane ant-tabs-tabpane-active"
+        role="tabpanel"
+        tabindex="0"
+      >
+        foo
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Tabs rtl render component should be rendered correctly in RTL direction 1`] = `
+<div
+  class="ant-tabs ant-tabs-top ant-tabs-rtl"
+>
+  <div
+    class="ant-tabs-nav"
+    role="tablist"
+  >
+    <div
+      class="ant-tabs-nav-wrap"
+    >
+      <div
+        class="ant-tabs-nav-list"
+        style="transform:translate(0px, 0px)"
+      >
+        <div
+          class="ant-tabs-tab ant-tabs-tab-active"
+        >
           <div
-            className="ant-tabs-extra-content"
+            aria-selected="true"
+            class="ant-tabs-tab-btn"
+            role="tab"
+            tabindex="0"
           >
-            xxx
+            xx
           </div>
-        }
-        inkBarAnimated={true}
-        onKeyDown={[Function]}
-        onNextClick={[Function]}
-        onPrevClick={[Function]}
-        onTabClick={[Function]}
-        panels={
-          <TabPane
-            placeholder={null}
-            tab="foo"
+        </div>
+        <div
+          class="ant-tabs-ink-bar ant-tabs-ink-bar-animated"
+        />
+      </div>
+    </div>
+    <div
+      class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"
+    >
+      <button
+        aria-controls="null-more-popup"
+        aria-expanded="false"
+        aria-haspopup="listbox"
+        aria-hidden="true"
+        class="ant-tabs-nav-more"
+        id="null-more"
+        style="visibility:hidden;order:1"
+        tabindex="-1"
+        type="button"
+      >
+        <span
+          aria-label="ellipsis"
+          class="anticon anticon-ellipsis"
+          role="img"
+        >
+          <svg
+            aria-hidden="true"
+            class=""
+            data-icon="ellipsis"
+            fill="currentColor"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <path
+              d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"
+            />
+          </svg>
+        </span>
+      </button>
+    </div>
+  </div>
+  <div
+    class="ant-tabs-content-holder"
+  >
+    <div
+      class="ant-tabs-content ant-tabs-content-top"
+    >
+      <div
+        aria-hidden="false"
+        class="ant-tabs-tabpane ant-tabs-tabpane-active"
+        role="tabpanel"
+        tabindex="0"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Tabs tabPosition remove card 1`] = `
+<div
+  class="ant-tabs ant-tabs-left"
+>
+  <div
+    class="ant-tabs-nav"
+    role="tablist"
+  >
+    <div
+      class="ant-tabs-nav-wrap"
+    >
+      <div
+        class="ant-tabs-nav-list"
+        style="transform:translate(0px, 0px)"
+      >
+        <div
+          class="ant-tabs-tab ant-tabs-tab-active"
+        >
+          <div
+            aria-selected="true"
+            class="ant-tabs-tab-btn"
+            role="tab"
+            tabindex="0"
           >
             foo
-          </TabPane>
-        }
-        prefixCls="ant-tabs"
-        scrollAnimated={true}
-        styles={Object {}}
-        tabBarPosition="left"
-      >
-        <div
-          className="ant-tabs-bar"
-          onKeyDown={[Function]}
-          role="tablist"
-          tabIndex="0"
-        >
-          <div
-            className="ant-tabs-nav-container"
-          >
-            <span
-              className="ant-tabs-tab-prev ant-tabs-tab-btn-disabled"
-              onClick={null}
-              onTransitionEnd={[Function]}
-              unselectable="unselectable"
-            >
-              <span
-                className="ant-tabs-tab-prev-icon"
-              />
-            </span>
-            <span
-              className="ant-tabs-tab-next ant-tabs-tab-btn-disabled"
-              onClick={null}
-              unselectable="unselectable"
-            >
-              <span
-                className="ant-tabs-tab-next-icon"
-              />
-            </span>
-            <div
-              className="ant-tabs-nav-wrap"
-            >
-              <div
-                className="ant-tabs-nav-scroll"
-              >
-                <div
-                  className="ant-tabs-nav ant-tabs-nav-animated"
-                >
-                  <div
-                    className="ant-tabs-ink-bar ant-tabs-ink-bar-animated"
-                  />
-                  <div
-                    aria-disabled="false"
-                    aria-selected="true"
-                    className="ant-tabs-tab-active ant-tabs-tab"
-                    onClick={[Function]}
-                    role="tab"
-                  >
-                    foo
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className="ant-tabs-extra-content"
-            style={Object {}}
-          >
-            xxx
           </div>
         </div>
-      </ScrollableInkTabBar>
-      <TabContent
-        activeKey="1"
-        animated={true}
-        animatedWithMargin={true}
-        destroyInactiveTabPane={false}
-        onChange={[Function]}
-        prefixCls="ant-tabs"
-        tabBarPosition="left"
-      >
         <div
-          className="ant-tabs-content ant-tabs-content-animated"
-          style={
-            Object {
-              "marginTop": "0%",
-            }
-          }
-        >
-          <TabPane
-            active={true}
-            destroyInactiveTabPane={false}
-            placeholder={null}
-            rootPrefixCls="ant-tabs"
-            tab="foo"
-          >
-            <div
-              aria-hidden="false"
-              className="ant-tabs-tabpane ant-tabs-tabpane-active"
-              role="tabpanel"
-            >
-              foo
-            </div>
-          </TabPane>
-        </div>
-      </TabContent>
+          class="ant-tabs-ink-bar ant-tabs-ink-bar-animated"
+        />
+      </div>
     </div>
-  </Tabs>
-</Tabs>
+    <div
+      class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"
+    >
+      <button
+        aria-controls="null-more-popup"
+        aria-expanded="false"
+        aria-haspopup="listbox"
+        aria-hidden="true"
+        class="ant-tabs-nav-more"
+        id="null-more"
+        style="visibility:hidden;order:1"
+        tabindex="-1"
+        type="button"
+      >
+        <span
+          aria-label="ellipsis"
+          class="anticon anticon-ellipsis"
+          role="img"
+        >
+          <svg
+            aria-hidden="true"
+            class=""
+            data-icon="ellipsis"
+            fill="currentColor"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <path
+              d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"
+            />
+          </svg>
+        </span>
+      </button>
+    </div>
+    <div
+      class="ant-tabs-extra-content"
+    >
+      xxx
+    </div>
+  </div>
+  <div
+    class="ant-tabs-content-holder"
+  >
+    <div
+      class="ant-tabs-content ant-tabs-content-left"
+    >
+      <div
+        aria-hidden="false"
+        class="ant-tabs-tabpane ant-tabs-tabpane-active"
+        role="tabpanel"
+        tabindex="0"
+      >
+        foo
+      </div>
+    </div>
+  </div>
+</div>
 `;

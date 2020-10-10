@@ -1,24 +1,89 @@
-import React from 'react';
-import { Item } from 'rc-menu';
-import PropTypes from 'prop-types';
-import Tooltip from '../tooltip';
+import * as React from 'react';
+import { Item, MenuItemProps as RcMenuItemProps } from 'rc-menu';
+import toArray from 'rc-util/lib/Children/toArray';
+import classNames from 'classnames';
+import MenuContext, { MenuContextProps } from './MenuContext';
+import Tooltip, { TooltipProps } from '../tooltip';
+import { SiderContext, SiderContextProps } from '../layout/Sider';
+import { isValidElement } from '../_util/reactNode';
 
-const MenuItem: any = (props, { inlineCollapsed }) => {
-  return (
-    <Tooltip
-      title={inlineCollapsed && props.level === 1 ? props.children : ''}
-      placement="right"
-      overlayClassName={`${props.rootPrefixCls}-inline-collapsed-tooltip`}
-    >
-      <Item {...props} />
-    </Tooltip>
-  );
-};
+export interface MenuItemProps extends Omit<RcMenuItemProps, 'title'> {
+  icon?: React.ReactNode;
+  danger?: boolean;
+  title?: React.ReactNode;
+}
 
-MenuItem.contextTypes = {
-  inlineCollapsed: PropTypes.bool,
-};
+export default class MenuItem extends React.Component<MenuItemProps> {
+  static isMenuItem = true;
 
-MenuItem.isMenuItem = 1;
+  renderItemChildren(inlineCollapsed: boolean) {
+    const { icon, children, level, rootPrefixCls } = this.props;
+    // inline-collapsed.md demo 依赖 span 来隐藏文字,有 icon 属性，则内部包裹一个 span
+    // ref: https://github.com/ant-design/ant-design/pull/23456
+    if (!icon || (isValidElement(children) && children.type === 'span')) {
+      if (children && inlineCollapsed && level === 1 && typeof children === 'string') {
+        return (
+          <div className={`${rootPrefixCls}-inline-collapsed-noicon`}>{children.charAt(0)}</div>
+        );
+      }
+      return children;
+    }
+    return <span>{children}</span>;
+  }
 
-export default MenuItem;
+  renderItem = ({ siderCollapsed }: SiderContextProps) => {
+    const { level, className, children, rootPrefixCls } = this.props;
+    const { title, icon, danger, ...rest } = this.props;
+
+    return (
+      <MenuContext.Consumer>
+        {({ inlineCollapsed, direction }: MenuContextProps) => {
+          let tooltipTitle = title;
+          if (typeof title === 'undefined') {
+            tooltipTitle = level === 1 ? children : '';
+          } else if (title === false) {
+            tooltipTitle = '';
+          }
+          const tooltipProps: TooltipProps = {
+            title: tooltipTitle,
+          };
+
+          if (!siderCollapsed && !inlineCollapsed) {
+            tooltipProps.title = null;
+            // Reset `visible` to fix control mode tooltip display not correct
+            // ref: https://github.com/ant-design/ant-design/issues/16742
+            tooltipProps.visible = false;
+          }
+          const childrenLength = toArray(children).length;
+          return (
+            <Tooltip
+              {...tooltipProps}
+              placement={direction === 'rtl' ? 'left' : 'right'}
+              overlayClassName={`${rootPrefixCls}-inline-collapsed-tooltip`}
+            >
+              <Item
+                {...rest}
+                className={classNames(
+                  {
+                    [`${rootPrefixCls}-item-danger`]: danger,
+                    [`${rootPrefixCls}-item-only-child`]:
+                      (icon ? childrenLength + 1 : childrenLength) === 1,
+                  },
+                  className,
+                )}
+                title={title}
+              >
+                {icon}
+                {this.renderItemChildren(inlineCollapsed)}
+              </Item>
+            </Tooltip>
+          );
+        }}
+      </MenuContext.Consumer>
+    );
+  };
+
+  render() {
+    return <SiderContext.Consumer>{this.renderItem}</SiderContext.Consumer>;
+  }
+}

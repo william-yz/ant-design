@@ -1,52 +1,72 @@
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
+import omit from 'omit.js';
+import { ConfigContext } from '../config-provider';
 
-export interface TimeLineItemProps {
+export interface TimelineItemProps {
   prefixCls?: string;
   className?: string;
   color?: string;
   dot?: React.ReactNode;
   pending?: boolean;
-  last?: boolean;
+  position?: string;
   style?: React.CSSProperties;
+  label?: React.ReactNode;
 }
 
-export default class TimelineItem extends React.Component<TimeLineItemProps, any> {
-  static defaultProps = {
-    prefixCls: 'ant-timeline',
-    color: 'blue',
-    last: false,
-    pending: false,
-  };
+// for compatibililty
+// https://github.com/ant-design/ant-design/pull/26832
+export interface TimeLineItemProps extends TimelineItemProps {
+  __deprecated_do_not_use_it__?: any; // eslint-disable-line camelcase
+}
 
-  render() {
-    const { prefixCls, className, color = '', last, children, pending, dot, ...restProps } = this.props;
+const TimelineItem: React.FC<TimelineItemProps> = props => {
+  const { getPrefixCls } = React.useContext(ConfigContext);
+  const {
+    prefixCls: customizePrefixCls,
+    className,
+    color,
+    children,
+    pending,
+    dot,
+    label,
+    ...restProps
+  } = props;
 
-    const itemClassName = classNames({
+  const prefixCls = getPrefixCls('timeline', customizePrefixCls);
+  const itemClassName = classNames(
+    {
       [`${prefixCls}-item`]: true,
-      [`${prefixCls}-item-last`]: last,
       [`${prefixCls}-item-pending`]: pending,
-    }, className);
+    },
+    className,
+  );
 
-    const dotClassName = classNames({
-      [`${prefixCls}-item-head`]: true,
-      [`${prefixCls}-item-head-custom`]: dot,
-      [`${prefixCls}-item-head-${color}`]: true,
-    });
+  const dotClassName = classNames({
+    [`${prefixCls}-item-head`]: true,
+    [`${prefixCls}-item-head-custom`]: dot,
+    [`${prefixCls}-item-head-${color}`]: true,
+  });
 
-    return (
-      <li {...restProps} className={itemClassName}>
-        <div className={`${prefixCls}-item-tail`} />
-        <div
-          className={dotClassName}
-          style={{ borderColor: /blue|red|green/.test(color) ? null : color }}
-        >
-          {dot}
-        </div>
-        <div className={`${prefixCls}-item-content`}>
-          {children}
-        </div>
-      </li>
-    );
-  }
-}
+  return (
+    <li {...omit(restProps, ['position'])} className={itemClassName}>
+      {label && <div className={`${prefixCls}-item-label`}>{label}</div>}
+      <div className={`${prefixCls}-item-tail`} />
+      <div
+        className={dotClassName}
+        style={{ borderColor: /blue|red|green|gray/.test(color || '') ? undefined : color }}
+      >
+        {dot}
+      </div>
+      <div className={`${prefixCls}-item-content`}>{children}</div>
+    </li>
+  );
+};
+
+TimelineItem.defaultProps = {
+  color: 'blue',
+  pending: false,
+  position: '',
+};
+
+export default TimelineItem;
